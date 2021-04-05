@@ -1,5 +1,5 @@
 module.exports = function (app, swig) {
-    app.get('/autores/agregar', function (req, res) {
+    app.get('/autores/agregar', function (req, res, gestorBD) {
         const r = swig.renderFile('views/autores-agregar.html', {});
         res.send(r);
     });
