@@ -14,4 +14,27 @@ module.exports = function (app, swig, gestorBD) {
             }
         });
     });
+
+    app.get('/cancion/eliminar/:id', function (req, res) {
+        let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.id)};
+        gestorBD.eliminarCancion(criterio, function (canciones) {
+            if (canciones == null) {
+                res.send(respuesta);
+            } else {
+                res.redirect("/publicaciones");
+            }
+        });
+    });
+
+    app.get('/comentarios/borrar/:comentario_id', function (req, res) {
+        let criterio = {"_id": gestorBD.mongo.ObjectID(req.params.comentario_id),
+                        "autor": req.session.usuario};
+        gestorBD.eliminarComentario(criterio, function (comentarios) {
+            if (comentarios == null) {
+                res.send("Error al borrar comentario");
+            } else {
+                res.send("Comentario borrado");
+            }
+        });
+    })
 };
