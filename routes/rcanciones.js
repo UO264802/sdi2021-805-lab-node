@@ -127,7 +127,7 @@ module.exports = function (app, swig, gestorBD) {
                                         res.send('Error al comprobar la compra');
                                     } else {
                                         let comprada = compras.length > 0;
-                                        let disponible = req.session.usuario !== canciones[0].autor && !comprada;
+                                        let disponible = req.session.usuario != canciones[0].autor && !comprada;
                                         canciones[0].comentarios = comentarios;
                                         let respuesta = swig.renderFile('views/bcancion.html',
                                             {
@@ -247,14 +247,24 @@ module.exports = function (app, swig, gestorBD) {
         gestorBD.obtenerCanciones({"_id": gestorBD.mongo.ObjectID(req.params.id)},
             function (canciones) {
                 if (canciones == null) {
-                    res.send("La cancion no existe");
+                    let respuesta = swig.renderFile('views/error.html',
+                        {
+                            tipoMensaje: "Cancion inexistente",
+                            mensaje: "La cancion que intentas comprar no existe"
+                        });
+                    res.send(respuesta);
                 } else {
                     gestorBD.obtenerCompras({
                         'usuario': req.session.usuario,
                         'cancionId': gestorBD.mongo.ObjectID(req.params.id)
                     }, compras => {
                         if (compras == null) {
-                            res.send('Error al comprobar la compra');
+                            let respuesta = swig.renderFile('views/error.html',
+                                {
+                                    tipoMensaje: "Error compra",
+                                    mensaje: "Error al comprobar la compra"
+                                });
+                            res.send(respuesta);
                         } else {
                             let comprada = compras.length > 0;
                             let disponible = req.session.usuario !== canciones[0].autor && !comprada;
@@ -266,12 +276,22 @@ module.exports = function (app, swig, gestorBD) {
                                 }
                                 gestorBD.insertarCompra(compra, function (idCompra) {
                                     if (idCompra == null) {
-                                        res.send("Eror al comprar");
+                                        let respuesta = swig.renderFile('views/error.html',
+                                            {
+                                                tipoMensaje: "Error compra",
+                                                mensaje: "Error al comprar la canción"
+                                            });
+                                        res.send(respuesta);
                                     } else {
                                         res.redirect("/compras");
                                     }
                                 });
-                            } else (res.send("No puedes comprar esta canción"))
+                            } else (
+                                res.send(swig.renderFile('views/error.html',
+                                {
+                                    tipoMensaje: "Error compra",
+                                    mensaje: "No puedes comprar esa cancion"
+                                })))
                         }
 
                     });
